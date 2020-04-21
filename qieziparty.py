@@ -433,7 +433,8 @@ class Person:
 
     def healing(self):
         if self.blood < warningBlood and self.medkit != noneMedkit:
-            answer = Utils.get_int_input("您当前茄汁『%d』不足，有一个肥料：%s，是否使用：%s" % (self.blood, str(self.medkit), Utils.choose(selects)))
+            answer = Utils.get_int_input(
+                "您当前茄汁『%d』不足，有一个肥料：%s，是否使用：%s" % (self.blood, str(self.medkit), Utils.choose(selects)))
             if answer == 1:
                 self.blood = self.blood + self.medkit.value
                 self.medkit = noneMedkit
@@ -565,9 +566,9 @@ class Block:
             equipment.position = position
 
     @staticmethod
-    def init_equipments(equipments, templates):
+    def init_equipments(equipments, templates, times=1):
         for i in range(len(templates)):
-            for j in range(i + 1):
+            for j in range(i + times):
                 equipments.append(copy.copy(templates[i]))
 
     def init(self):
@@ -578,7 +579,7 @@ class Block:
         weapons = []
         Block.init_equipments(weapons, weaponTemplates)
         helmets = []
-        Block.init_equipments(helmets, helmetTemplates)
+        Block.init_equipments(helmets, helmetTemplates, 4)
         medkits = []
         Block.init_equipments(medkits, medkitTemplates)
 
@@ -625,9 +626,8 @@ class Block:
             len(self.enemies)))
         Map.print_map(self, current_player)
 
+
 blocks = [Block('可可西里*', 1000), Block('喀纳斯', 800), Block('神农架', 600), Block('西双版纳', 400), Block('卧龙', 200)]
-
-
 
 
 class Map:
