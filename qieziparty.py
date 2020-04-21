@@ -618,16 +618,16 @@ class Block:
         self.equipments.sort(key=sorter)
         self.enemies.sort(key=sorter)
 
+    def print_brief_info(self, current_player):
+        print(splitter)
+        print("区域：『%s』\t您的位置『%d』/%d，剩余装备数量：『%d』\t剩余玩家数量：『%d』" % (
+            self.name, current_player.position, self.range, len(self.equipments),
+            len(self.enemies)))
+        Map.print_map(self, current_player)
 
 blocks = [Block('可可西里*', 1000), Block('喀纳斯', 800), Block('神农架', 600), Block('西双版纳', 400), Block('卧龙', 200)]
 
 
-def print_brief_info(current_block, current_player):
-    print(splitter)
-    print("区域：『%s』\t您的位置『%d』/%d，剩余装备数量：『%d』\t剩余玩家数量：『%d』" % (
-        current_block.name, current_player.position, current_block.range, len(current_block.equipments),
-        len(current_block.enemies)))
-    Map.print_map(current_block, current_player)
 
 
 class Map:
@@ -688,7 +688,7 @@ def start_game(person):
             QieziGame.win(person, "敌人都已回归大自然，恭喜您提前吃瓜！")
             sys.exit()
         if search_mode == 0:
-            print_brief_info(current_block, person)
+            current_block.print_brief_info(person)
             print(splitter)
         if person.direction == 0:
             next_position = person.position + person.run()

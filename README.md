@@ -9,10 +9,6 @@
 
 [解惑](http://www.jiehoo.com)
 
-##许可协议
-[署名-非商业性使用 4.0 国际](https://creativecommons.org/licenses/by-nc/4.0/)
-
-![Image of Yaktocat](https://licensebuttons.net/l/by-nc/3.0/88x31.png)
 
 ## 开发计划
 - [x] 2020.4.19：游戏改名为茄子派对
@@ -63,3 +59,9 @@
 - [ ] 2人组队功能，随机匹配一个系统玩家
 - [ ] 修改交通工具，增加座位数参数
 - [ ] 二维空间
+
+##许可协议
+
+[署名-非商业性使用 4.0 国际](https://creativecommons.org/licenses/by-nc/4.0/)
+
+![CC BY-NC](https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Cc-by-nc_icon.svg/1280px-Cc-by-nc_icon.svg.png)
