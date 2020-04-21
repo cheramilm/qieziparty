@@ -40,7 +40,7 @@ player = None
 class QieziGame:
     @staticmethod
     def print_headers():
-        print("%s茄子派对地图版%s%s" % (marker, version, marker))
+        print("%s茄子派对迷雾版%s%s" % (marker, version, marker))
         print("%s本游戏由茄子派对工作室荣誉出品%s" % (marker, marker))
         print(
             "%s抵制不良游戏 拒绝盗版游戏 \n%s注意自我保护 谨防受骗上当 \n%s适度游戏益脑 沉迷游戏伤身 \n%s合理安排时间 享受健康生活" % (center, center, center, center))
@@ -433,7 +433,7 @@ class Person:
 
     def healing(self):
         if self.blood < warningBlood and self.medkit != noneMedkit:
-            answer = get_int_input("您当前茄汁『%d』不足，有一个肥料：%s，是否使用：%s" % (self.blood, str(self.medkit), choose(selects)))
+            answer = Utils.get_int_input("您当前茄汁『%d』不足，有一个肥料：%s，是否使用：%s" % (self.blood, str(self.medkit), Utils.choose(selects)))
             if answer == 1:
                 self.blood = self.blood + self.medkit.value
                 self.medkit = noneMedkit
@@ -449,7 +449,7 @@ class Person:
                 time.sleep(1)
             self.healing()
             if confirm == 1 and fight_times % 10 == 0:
-                answer = get_int_input("又打了10个来回了，还继续吗？%s：" % (choose(fightSelects)))
+                answer = Utils.get_int_input("又打了10个来回了，还继续吗？%s：" % (Utils.choose(fightSelects)))
                 if answer == 2:
                     return 2
                 elif answer == 3:
@@ -473,6 +473,7 @@ class Person:
 class Block:
     name = ''
     range = 0
+    exploredRange = 0
     equipments = []
     enemies = []
     player = None
@@ -519,21 +520,21 @@ class Block:
                     return target2
 
     def choose_object(self, obj, message, chosen_message, fail_message):
-        show_player()
-        answer = get_int_input(message % (str(obj), choose(selects)))
+        QieziGame.show_player()
+        answer = Utils.get_int_input(message % (str(obj), Utils.choose(selects)))
         if answer == 1:
             self.equipments.remove(obj)
             self.player.equip(obj, self)
             print(chosen_message % obj)
-            show_player()
+            QieziGame.show_player()
         else:
             self.player.position = obj.position
             print(fail_message % obj)
 
     def choose_fight(self, enemy, message, win_message, fail_message):
-        show_player()
-        answer = get_int_input(message % (
-            str(enemy), "您的胜率：『%s』(仅供参考，回归大自然也正常啦^_^)" % (self.player.win_rate(enemy)), choose(fightSelects)))
+        QieziGame.show_player()
+        answer = Utils.get_int_input(message % (
+            str(enemy), "您的胜率：『%s』(仅供参考，回归大自然也正常啦^_^)" % (self.player.win_rate(enemy)), Utils.choose(fightSelects)))
         if answer == 1 or answer == 3:
             if answer == 1:
                 fight_result = self.player.fight(enemy)
@@ -582,24 +583,24 @@ class Block:
         Block.init_equipments(medkits, medkitTemplates)
 
         self.enemies = [
-            Person('紫茄大王', randint(50, maxBlood), randint(2, 6), copy.copy(foot), random_item(weapons),
-                   random_item(helmets)),
-            Person('红茄骑士', randint(20, maxBlood), randint(1, 5), copy.copy(foot), random_item(weapons),
-                   random_item(helmets)),
-            Person('绿茄剑士', randint(10, maxBlood), randint(0, 4), copy.copy(foot), random_item(weapons),
-                   random_item(helmets)),
-            Person('白茄士兵', randint(10, maxBlood), randint(0, 3), copy.copy(foot), random_item(weapons),
-                   random_item(helmets)),
-            Person('圆茄巨人', randint(10, maxBlood), randint(0, 3), copy.copy(foot), random_item(weapons),
-                   random_item(helmets)),
-            Person('矮茄娃娃', randint(10, maxBlood), randint(0, 3), copy.copy(foot), random_item(weapons),
-                   random_item(helmets))]
+            Person('紫茄大王', randint(50, maxBlood), randint(2, 6), copy.copy(foot), Utils.random_item(weapons),
+                   Utils.random_item(helmets)),
+            Person('红茄骑士', randint(20, maxBlood), randint(1, 5), copy.copy(foot), Utils.random_item(weapons),
+                   Utils.random_item(helmets)),
+            Person('绿茄剑士', randint(10, maxBlood), randint(0, 4), copy.copy(foot), Utils.random_item(weapons),
+                   Utils.random_item(helmets)),
+            Person('白茄士兵', randint(10, maxBlood), randint(0, 3), copy.copy(foot), Utils.random_item(weapons),
+                   Utils.random_item(helmets)),
+            Person('圆茄巨人', randint(10, maxBlood), randint(0, 3), copy.copy(foot), Utils.random_item(weapons),
+                   Utils.random_item(helmets)),
+            Person('矮茄娃娃', randint(10, maxBlood), randint(0, 3), copy.copy(foot), Utils.random_item(weapons),
+                   Utils.random_item(helmets))]
         for index in range(5):
             self.enemies.append(
                 Person('菜茄%d号' % (index + 1), randint(1, maxBlood / 2), randint(0, 1), copy.copy(foot), copy.copy(hand),
                        copy.copy(hair)))
         for index in range(5 - int(self.range / 200)):
-            random_item(self.enemies)
+            Utils.random_item(self.enemies)
 
         self.equipments.extend(vehicles)
         self.equipments.extend(weapons)
@@ -677,20 +678,22 @@ class Map:
 
 
 def start_game(person):
-    current_block = choose_blocks("准备跳伞，请选择您降落的位置\n%s：", blocks, "您成功落地到：%s", "您掉落到未知世界\n您已回归大自然，等待发芽吧^_^")
+    current_block = QieziGame.choose_blocks("准备跳伞，请选择您降落的位置\n%s：", blocks, "您成功落地到：%s", "您掉落到未知世界\n您已回归大自然，等待发芽吧^_^")
     current_block.init()
     person.init_player()
     current_block.player = person
     search_mode = 0
     while person.position < current_block.range:
         if len(current_block.enemies) == 0:
-            win(person, "敌人都已回归大自然，恭喜您提前吃瓜！")
+            QieziGame.win(person, "敌人都已回归大自然，恭喜您提前吃瓜！")
             sys.exit()
         if search_mode == 0:
             print_brief_info(current_block, person)
             print(splitter)
         if person.direction == 0:
             next_position = person.position + person.run()
+            if current_block.exploredRange < next_position:
+                current_block.exploredRange = next_position
             target = current_block.next_target(person.position + 1, next_position)
         else:
             next_position = person.position - person.run()
@@ -703,7 +706,7 @@ def start_game(person):
                 print('啥也没有，继续找，我就不信了！位置：『%d』' % person.position)
                 continue
             else:
-                run_answer = get_int_input("跑了这么久啥都没看到，本茄来错片场了吗？%s：" % (choose(directions)))
+                run_answer = Utils.get_int_input("跑了这么久啥都没看到，本茄来错片场了吗？%s：" % (Utils.choose(directions)))
                 if run_answer == 4:
                     search_mode = 1
                 elif run_answer == 5:
@@ -735,21 +738,21 @@ def start_game(person):
 
         if person.position > current_block.range:
             person.position = current_block.range
-    win(person, "您真是跑毒高手啊，恭喜您吃瓜！")
+    QieziGame.win(person, "您真是跑毒高手啊，恭喜您吃瓜！")
     sys.exit()
 
 
-print_headers()
-print_core_parameters()
-start_player()
-welcome_player()
+QieziGame.print_headers()
+QieziGame.print_core_parameters()
+QieziGame.start_player()
+QieziGame.welcome_player()
 while 1 == 1:
     try:
         # noinspection PyTypeChecker
         start_game(player)
     except SystemExit:
         print(splitter)
-        again_answer = get_int_input("再来一局？%s：" % (choose(selects)))
+        again_answer = Utils.get_int_input("再来一局？%s：" % (Utils.choose(selects)))
         if again_answer != 1:
             print("欢迎下次再玩！")
             break
