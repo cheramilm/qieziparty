@@ -1,6 +1,7 @@
 from person import *
 import copy
 import operator
+import sys
 
 
 class Block:
@@ -112,12 +113,34 @@ class Block:
         self.equipments.sort(key=sorter)
         self.enemies.sort(key=sorter)
 
-    def print_brief_info(self, current_player):
+    def print_brief_info(self, current_player, current_round):
         print(splitter)
         print("区域：『%s』\t您的位置『%d』/%d，剩余装备数量：『%d』\t剩余玩家数量：『%d』" % (
             self.name, current_player.position, self.range, len(self.equipments),
             len(self.enemies)))
-        Map.print_map(self, current_player)
+        Map.print_map(self, current_player, current_round)
+
+    def poison(self, current_player, current_round):
+        self.enemies.append(current_player)
+        area_size = self.range / areas
+        max_poison = int(current_round / poisonRound)
+        for enemy in self.enemies:
+            area_index = int(enemy.position / area_size)
+            poison_level = max_poison - area_index
+            if poison_level > len(poisonStatus) - 1:
+                poison_level = len(poisonStatus) - 1
+            elif poison_level < 0:
+                poison_level = 0
+            enemy.poison(poisonValues[poison_level])
+            if enemy.died():
+                if enemy == current_player:
+                    print("很遗憾，您跑毒失败，回归大自然。。。")
+                    sys.exit()
+                else:
+                    input("玩家『%s』被毒杀，回归大自然。。。" % enemy.name)
+                    self.enemies.remove(enemy)
+
+        self.enemies.remove(current_player)
 
 
 blockTemplates = [Block('可可西里*', 1000), Block('喀纳斯', 800), Block('神农架', 600), Block('西双版纳', 400), Block('卧龙', 200)]
@@ -135,7 +158,7 @@ class Map:
         line_map[index].append(value)
 
     @staticmethod
-    def print_map(current_block, current_player):
+    def print_map(current_block, current_player, current_round):
         print(mapHeader)
         line_map = [['|'], ['|'], ['|'], ['|'], ['|'], ['|']]
         current_block.enemies.append(current_player)
@@ -147,8 +170,8 @@ class Map:
             area_index = int(enemy.position / area_size)
             Map.build_map(line_map, 0, area_index, enemy.name[0:1])
         Map.build_map(line_map, 0, 41, '\t 『茄』|')
-        print(''.join(line_map[0]))
         current_block.enemies.remove(current_player)
+        print(''.join(line_map[0]))
         for equipment in current_block.equipments:
             if equipment.position > current_block.exploredRange:
                 break
@@ -165,6 +188,15 @@ class Map:
         Map.build_map(line_map, 2, 41, '\t 『棍』|')
         Map.build_map(line_map, 3, 41, '\t 『盔』|')
         Map.build_map(line_map, 4, 41, '\t 『肥』|')
+        max_poison = int(current_round / poisonRound)
+        for index in range(areas):
+            poison_level = max_poison - index
+            if poison_level > len(poisonStatus) - 1:
+                poison_level = len(poisonStatus) - 1
+            elif poison_level < 0:
+                poison_level = 0
+            Map.build_map(line_map, 5, index, poisonStatus[poison_level])
+
         Map.build_map(line_map, 5, 41, '\t 『毒』|')
         print(''.join(line_map[1]))
         print(''.join(line_map[2]))

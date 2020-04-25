@@ -20,6 +20,7 @@ class Person:
     attackTimes = 0
     position = 0
     direction = 0
+    stay = 0
 
     def __init__(self, name, blood, kill, vehicle=None, weapon=None, helmet=None, medkit=noneMedkit):
         self.name = name
@@ -32,9 +33,9 @@ class Person:
         self.set_level()
 
     def __str__(self):
-        return "茄号：『%s』 茄汁：『%d』 等级：『%s』 准心：『%s』\n皮子：%s\n棍子：%s\n盔子：%s\n肥料：%s" % (
+        return "茄号：『%s』 茄汁：『%d』 等级：『%s』 准心：『%s』\n皮子：%s\n棍子：%s\n盔子：%s\n肥料：%s\n方向：%s" % (
             self.name, self.blood, self.level, '{:.1%}'.format(self.sight()), self.vehicle, self.weapon, self.helmet,
-            self.medkit)
+            self.medkit, directions[self.direction])
 
     def init_player(self):
         self.blood = maxBlood
@@ -116,7 +117,14 @@ class Person:
         return self.weapon.single_attack() * self.sight()
 
     def run(self):
+        self.healing()
         return self.vehicle.run()
+
+    def died(self):
+        return self.blood <= 0
+
+    def poison(self, value):
+        self.blood = self.blood - value
 
     def attack(self):
         init_attack = self.weapon.attack()
@@ -125,7 +133,7 @@ class Person:
         if self.sight() >= current_sight:
             return init_attack
         else:
-            print("怎么回事，竟然打偏了，是等级太低还是风？一定是风太大了！！！")
+            print("怎么回事，竟然打偏了，是经验不够还是风太大？一定是风太大了！！！")
             return 0
 
     def attacked(self, value):
@@ -133,7 +141,7 @@ class Person:
         self.blood = self.blood - attack_left
 
     def healing(self):
-        if self.blood < warningBlood and self.medkit != noneMedkit:
+        if self.medkit != noneMedkit and self.blood + self.medkit.value <= maxBlood:
             answer = Utils.get_int_input(
                 "您当前茄汁『%d』不足，有一个肥料：%s，是否使用：%s" % (self.blood, str(self.medkit), Utils.choose(selects)))
             if answer == 1:

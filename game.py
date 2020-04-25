@@ -1,14 +1,14 @@
-from block import *
-from constants import *
-from utils import *
 from person import *
 import sys
 import time
+import datetime
 
 
 class Game:
     player = None
     block = None
+    startTime = 0
+    round = 0
 
     @staticmethod
     def print_headers():
@@ -42,6 +42,7 @@ class Game:
         print("\n\n\n")
         print("%s%s%s" % (marker, message, marker))
         print(self.player)
+        print("本局耗时一共『%d』秒" % (datetime.datetime.now() - self.startTime).seconds)
 
     @staticmethod
     def choose_blocks(message, array, chosen_message, fail_message):
@@ -88,29 +89,36 @@ class Game:
             attacked = enemy.attack()
             self.player.attacked(attacked)
             print("您被『%s』发现并被攻击『%d』！" % (enemy.name, attacked))
-            if self.player.blood <= 0:
+            if self.player.died():
                 print(fail_message % enemy.name)
                 sys.exit()
             self.player.position = enemy.position
 
     def start_game(self, blocks):
         self.block = Game.choose_blocks("准备跳伞，请选择您降落的位置\n%s：", blocks, "您成功落地到：%s",
-                                                "您掉落到未知世界\n您已回归大自然，等待发芽吧^_^")
+                                        "您掉落到未知世界\n您已回归大自然，等待发芽吧^_^")
         self.block.init()
         self.player.init_player()
+        self.startTime = datetime.datetime.now()
+        self.round = 0
         search_mode = 0
         while self.player.position < self.block.range:
             if len(self.block.enemies) == 0:
                 self.win("敌人都已回归大自然，恭喜您提前吃瓜！")
                 sys.exit()
+            self.round = self.round + 1
+            self.block.poison(self.player, self.round)
             if search_mode == 0:
-                self.block.print_brief_info(self.player)
+                self.block.print_brief_info(self.player, self.round)
                 print(splitter)
             if self.player.direction == 0:
                 next_position = self.player.position + self.player.run()
                 if self.block.exploredRange < next_position:
                     self.block.exploredRange = next_position
                 target = self.block.next_target(self.player.position + 1, next_position)
+            elif self.player.stay == 1:
+                next_position = self.player.position
+                target = self.block.next_target(self.player.position, next_position)
             else:
                 next_position = self.player.position - self.player.run()
                 if next_position < 0:
@@ -126,20 +134,26 @@ class Game:
                     run_answer = Utils.get_int_input("跑了这么久啥都没看到，本茄来错片场了吗？%s：" % (Utils.choose(directions)))
                     if run_answer == 4:
                         search_mode = 1
+                        self.player.stay = 0
                     elif run_answer == 5:
                         search_mode = 2
+                        self.player.stay = 0
                     elif run_answer == 2:
                         self.player.direction = 1
+                        self.player.stay = 0
                     elif run_answer == 1:
                         self.player.direction = 0
+                        self.player.stay = 0
                     elif run_answer == 3:
+                        self.player.stay = 1
                         input('这里风光不错，值得多看看。。。')
                     else:
                         search_mode = 1
+                        self.player.stay = 1
             elif isinstance(target, Person):
                 search_mode = 0
                 self.choose_fight(target, "！！！前方发现一个敌人！！！\n%s\n%s\n是否要战斗 %s :", "成功打败敌人『%s』",
-                                           "很遗憾，您被『%s』回归大自然了！")
+                                  "很遗憾，您被『%s』回归大自然了！")
             else:
                 if search_mode == 2:
                     self.pick_better_equipment(target)
@@ -153,7 +167,7 @@ class Game:
                     else:
                         search_mode = 0
                         self.choose_object(target, "\n前方发现一个装备 %s\n是否替换现有装备 %s :", "成功获取装备：%s",
-                                                    "很遗憾，您错过了装备：%s")
+                                           "很遗憾，您错过了装备：%s")
 
             if self.player.position > self.block.range:
                 self.player.position = self.block.range
