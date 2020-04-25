@@ -1,9 +1,10 @@
 # coding:utf-8
 from block import *
+from game import *
 
-game = QieziGame()
-QieziGame.print_headers()
-QieziGame.print_core_parameters()
+game = Game()
+game.print_headers()
+game.print_core_parameters()
 game.start_player()
 game.welcome_player()
 while 1 == 1:

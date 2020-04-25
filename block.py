@@ -1,4 +1,3 @@
-from qieziGame import *
 from person import *
 import copy
 import operator

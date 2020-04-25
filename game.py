@@ -6,7 +6,7 @@ import sys
 import time
 
 
-class QieziGame:
+class Game:
     player = None
     block = None
 
@@ -94,7 +94,7 @@ class QieziGame:
             self.player.position = enemy.position
 
     def start_game(self, blocks):
-        self.block = QieziGame.choose_blocks("准备跳伞，请选择您降落的位置\n%s：", blocks, "您成功落地到：%s",
+        self.block = Game.choose_blocks("准备跳伞，请选择您降落的位置\n%s：", blocks, "您成功落地到：%s",
                                                 "您掉落到未知世界\n您已回归大自然，等待发芽吧^_^")
         self.block.init()
         self.player.init_player()
@@ -103,7 +103,6 @@ class QieziGame:
             if len(self.block.enemies) == 0:
                 self.win("敌人都已回归大自然，恭喜您提前吃瓜！")
                 sys.exit()
-            time.sleep(1)
             if search_mode == 0:
                 self.block.print_brief_info(self.player)
                 print(splitter)
@@ -121,6 +120,7 @@ class QieziGame:
                 self.player.position = next_position
                 if search_mode == 1 or search_mode == 2:
                     print('啥也没有，继续找，我就不信了！位置：『%d』' % self.player.position)
+                    time.sleep(1)
                     continue
                 else:
                     run_answer = Utils.get_int_input("跑了这么久啥都没看到，本茄来错片场了吗？%s：" % (Utils.choose(directions)))
@@ -144,12 +144,14 @@ class QieziGame:
                 if search_mode == 2:
                     self.player.position = next_position
                     print('啥敌人也没有，继续找，我就不信了，位置：『%d』' % self.player.position)
+                    time.sleep(1)
                     continue
                 else:
                     if self.player.is_better_equipment(target) == 1:
                         self.block.equipments.remove(target)
                         self.player.equip(target, self.block)
                         print("发现更好装备：%s，自动替换现有装备" % target)
+                        time.sleep(1)
                     else:
                         search_mode = 0
                         self.choose_object(target, "\n前方发现一个装备 %s\n是否替换现有装备 %s :", "成功获取装备：%s",
