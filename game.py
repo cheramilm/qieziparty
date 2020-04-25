@@ -142,15 +142,13 @@ class Game:
                                            "很遗憾，您被『%s』回归大自然了！")
             else:
                 if search_mode == 2:
+                    self.pick_better_equipment(target)
                     self.player.position = next_position
                     print('啥敌人也没有，继续找，我就不信了，位置：『%d』' % self.player.position)
                     time.sleep(1)
                     continue
                 else:
-                    if self.player.is_better_equipment(target) == 1:
-                        self.block.equipments.remove(target)
-                        self.player.equip(target, self.block)
-                        print("发现更好装备：%s，自动替换现有装备" % target)
+                    if self.pick_better_equipment(target) == 1:
                         time.sleep(1)
                     else:
                         search_mode = 0
@@ -161,3 +159,12 @@ class Game:
                 self.player.position = self.block.range
         self.win("您真是跑毒高手啊，恭喜您吃瓜！")
         sys.exit()
+
+    def pick_better_equipment(self, target):
+        if self.player.is_better_equipment(target) == 1:
+            self.block.equipments.remove(target)
+            self.player.equip(target, self.block)
+            print("发现更好装备：%s，自动替换现有装备" % target)
+            return 1
+        else:
+            return 0
