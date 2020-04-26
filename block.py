@@ -115,12 +115,12 @@ class Block:
         self.equipments.sort(key=sorter)
         self.enemies.sort(key=sorter)
 
-    def print_brief_info(self, current_player, current_round):
+    def print_brief_info(self, current_player, current_round, open_all = 0):
         Utils.print(splitter)
         Utils.print("区域：『%s』\t您的位置『%d』/%d，剩余装备数量：『%d』\t剩余玩家数量：『%d』" % (
             self.name, current_player.position, self.range, len(self.equipments),
             len(self.enemies)))
-        Map.print_map(self, current_player, current_round)
+        Map.print_map(self, current_player, current_round, open_all)
 
     def poison(self, current_player, current_round):
         self.enemies.append(current_player)

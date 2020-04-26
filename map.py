@@ -16,23 +16,25 @@ class Map:
         line_map[index].append(value)
 
     @staticmethod
-    def print_map(current_block, current_player, current_round):
+    def print_map(current_block, current_player, current_round, open_all = 0):
         Utils.print(mapHeader)
         line_map = [['|'], ['|'], ['|'], ['|'], ['|'], ['|']]
         current_block.enemies.append(current_player)
         current_block.sort()
         area_size = current_block.range / areas
         for enemy in current_block.enemies:
-            if enemy.position > current_block.exploredRange:
-                break
+            if open_all == 0:
+                if enemy.position > current_block.exploredRange:
+                    break
             area_index = int(enemy.position / area_size)
             Map.build_map(line_map, 0, area_index, enemy.name[0:1])
         Map.build_map(line_map, 0, 41, '\t 『茄』|')
         current_block.enemies.remove(current_player)
         Utils.print(''.join(line_map[0]))
         for equipment in current_block.equipments:
-            if equipment.position > current_block.exploredRange:
-                break
+            if open_all == 0:
+                if equipment.position > current_block.exploredRange:
+                    break
             area_index = int(equipment.position / area_size)
             if isinstance(equipment, Vehicle):
                 Map.build_map(line_map, 1, area_index, equipment.name[0:1])

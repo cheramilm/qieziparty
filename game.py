@@ -138,6 +138,11 @@ class Game:
                     if run_answer == 4:
                         search_mode = 1
                         self.player.stay = 0
+                    elif run_answer == 6:
+                        password = Utils.input('你很不错啊，这都能发现，密码也知道吗：')
+                        if password == "ilovecherami":
+                            self.block.print_brief_info(self.player, self.round, 1)
+                            continue
                     elif run_answer == 5:
                         search_mode = 2
                         self.player.stay = 0
