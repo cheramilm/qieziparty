@@ -71,9 +71,13 @@ class Game:
         self.show_player()
         answer = Utils.get_int_input(message % (
             str(enemy), "您的胜率：『%s』(仅供参考，回归大自然也正常啦^_^)" % (self.player.win_rate(enemy)), Utils.choose(fightSelects)))
-        if answer == 1 or answer == 3:
+        if answer != 2:
             if answer == 1:
                 fight_result = self.player.fight(enemy)
+            elif answer == 4:
+                self.player.shot_one_and_run(enemy)
+                self.player.position = enemy.position
+                return
             else:
                 fight_result = self.player.fight(enemy, 0)
             if fight_result == 1:
