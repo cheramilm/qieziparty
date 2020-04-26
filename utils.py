@@ -3,6 +3,14 @@ from random import *
 
 class Utils:
     @staticmethod
+    def print(message):
+        print(message)
+
+    @staticmethod
+    def input(message):
+        return input(message)
+
+    @staticmethod
     def choose(array, separator=' '):
         result = ''
         for index in range(len(array)):
@@ -11,7 +19,7 @@ class Utils:
 
     @staticmethod
     def get_int_input(message, default_value=0):
-        answer = input(message)
+        answer = Utils.input(message)
         try:
             return int(answer)
         except ValueError:

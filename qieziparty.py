@@ -1,5 +1,6 @@
 from block import *
 from game import *
+from utils import *
 
 game = Game()
 game.print_headers()
@@ -10,8 +11,8 @@ while 1 == 1:
     try:
         game.start_game(blockTemplates)
     except SystemExit:
-        print(splitter)
+        Utils.print(splitter)
         again_answer = Utils.get_int_input("再来一局？%s：" % (Utils.choose(selects)))
         if again_answer != 1:
-            print("欢迎下次再玩！")
+            Utils.print("欢迎下次再玩！")
             break

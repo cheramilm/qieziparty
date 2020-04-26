@@ -1,4 +1,5 @@
 from constants import *
+from utils import *
 
 
 class Vehicle:
@@ -36,11 +37,11 @@ class Vehicle:
             return self.speed
         else:
             if self.name != footName:
-                print("『%s』剩余次数为『0』，自动丢弃！" % self.name)
+                Utils.print("『%s』剩余次数为『0』，自动丢弃！" % self.name)
                 self.to_foot()
                 return self.speed
             else:
-                print("茄根已经不能支撑您壮硕的娇躯，爬着走吧！！！")
+                Utils.print("茄根已经不能支撑您壮硕的娇躯，爬着走吧！！！")
                 return 1
 
 

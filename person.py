@@ -1,4 +1,3 @@
-from utils import *
 from medkit import *
 from vehicle import *
 from weapon import *
@@ -21,6 +20,7 @@ class Person:
     position = 0
     direction = 0
     stay = 0
+    chase = 0
 
     def __init__(self, name, blood, kill, vehicle=None, weapon=None, helmet=None, medkit=noneMedkit):
         self.name = name
@@ -55,7 +55,10 @@ class Person:
         enemy_sight = enemy.sight()
         kill_enemy_times = enemy_total_blood / self.single_attack() + 0.01
         killed_times = player_total_blood / enemy.single_attack()
-        return format(killed_times / kill_enemy_times / (enemy_sight / player_sight), '.0%')
+        rate = killed_times / kill_enemy_times / (enemy_sight / player_sight)
+        if rate > 3:
+            rate = 3
+        return format(rate, '.0%')
 
     def is_better_equipment(self, equipment):
         if isinstance(equipment, Vehicle):
@@ -85,7 +88,7 @@ class Person:
             target_block.add_equipment(self.medkit, self.position)
             self.medkit = equipment
         else:
-            input("您是神农下凡吗？可惜服务器出bug了。。。")
+            Utils.input("您是神农下凡吗？可惜服务器出bug了。。。")
 
     def set_level(self):
         if self.kill < len(levels):
@@ -117,7 +120,7 @@ class Person:
         return self.weapon.single_attack() * self.sight()
 
     def run(self):
-        self.healing()
+        self.need_heal()
         return self.vehicle.run()
 
     def died(self):
@@ -133,30 +136,47 @@ class Person:
         if self.sight() >= current_sight:
             return init_attack
         else:
-            print("怎么回事，竟然打偏了，是经验不够还是风太大？一定是风太大了！！！")
+            Utils.print("怎么回事，竟然打偏了，是经验不够还是风太大？一定是风太大了！！！")
             return 0
 
     def attacked(self, value):
         attack_left = self.helmet.protect(value)
         self.blood = self.blood - attack_left
 
-    def healing(self):
-        if self.medkit != noneMedkit and self.blood + self.medkit.value <= maxBlood:
-            answer = Utils.get_int_input(
-                "您当前茄汁『%d』不足，有一个肥料：%s，是否使用：%s" % (self.blood, str(self.medkit), Utils.choose(selects)))
-            if answer == 1:
-                self.blood = self.blood + self.medkit.value
-                self.medkit = noneMedkit
-                if self.blood > maxBlood:
-                    self.blood = maxBlood
+    def heal(self):
+        self.blood = self.blood + self.medkit.value
+        self.medkit = noneMedkit
+        if self.blood > maxBlood:
+            self.blood = maxBlood
+
+    def need_heal(self):
+        if self.medkit != noneMedkit:
+            if self.blood + self.medkit.value <= maxBlood:
+                self.heal()
+                Utils.print("自动补充茄子！")
+            elif self.blood < warningBlood:
+                answer = Utils.get_int_input(
+                    "您当前茄汁『%d』不足，有一个肥料：%s，是否使用：%s" % (self.blood, str(self.medkit), Utils.choose(selects)))
+                if answer == 1:
+                    self.heal()
+
+    def shot_one_and_run(self, enemy):
+        self.need_heal()
+        attacked = self.attack()
+        enemy.attacked(attacked)
+        enemy.chase = 1
+        Utils.print("您攻击了『%s』，攻击力『%d』，对方剩余总茄汁：『%d』" % (enemy.name, attacked, enemy.total_blood()))
+        if enemy.blood <= 0:
+            self.add_kill()
+            Utils.print("『%d』杀！！！" % self.kill)
 
     def fight(self, enemy, confirm=1):
-        print("您总茄汁：『%d』，『%s』总茄汁：『%d』" % (self.total_blood(), enemy.name, enemy.total_blood()))
-        self.healing()
+        Utils.print("您总茄汁：『%d』，『%s』总茄汁：『%d』" % (self.total_blood(), enemy.name, enemy.total_blood()))
+        self.need_heal()
         fight_times = 1
         while self.blood > 0 and enemy.blood > 0:
             time.sleep(1)
-            self.healing()
+            self.need_heal()
             if confirm == 1 and fight_times % 10 == 0:
                 answer = Utils.get_int_input("又打了10个来回了，还继续吗？%s：" % (Utils.choose(fightSelects)))
                 if answer == 2:
@@ -166,14 +186,14 @@ class Person:
             fight_times = fight_times + 1
             attacked = self.attack()
             enemy.attacked(attacked)
-            print("您攻击了『%s』，攻击力『%d』，对方剩余总茄汁：『%d』" % (enemy.name, attacked, enemy.total_blood()))
+            Utils.print("您攻击了『%s』，攻击力『%d』，对方剩余总茄汁：『%d』" % (enemy.name, attacked, enemy.total_blood()))
             if enemy.blood <= 0:
                 self.add_kill()
-                print("您用『%d』招击杀了对手，『%d』杀！！！" % (fight_times, self.kill))
+                Utils.print("您用『%d』招击杀了对手，『%d』杀！！！" % (fight_times, self.kill))
                 return 1
             attacked = enemy.attack()
             self.attacked(attacked)
-            print("您被『%s』攻击了，攻击力『%d』，您剩余总茄汁：『%d』" % (enemy.name, attacked, self.total_blood()))
+            Utils.print("您被『%s』攻击了，攻击力『%d』，您剩余总茄汁：『%d』" % (enemy.name, attacked, self.total_blood()))
             if self.blood <= 0:
                 enemy.add_kill()
                 return 0
